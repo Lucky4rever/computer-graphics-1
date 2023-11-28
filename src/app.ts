@@ -1,4 +1,4 @@
-import MatrixRotation from "./tools/webgl-matrix-rotation.renderer";
+import MatrixAnimation from "./tools/webgl-animation.renderer";
 import WebGLRenderer from "./tools/webgl-renderer.renderer";
 import CustomMath from "./utils/custom-math";
 import { getShader } from "./utils/get-shader";
@@ -75,8 +75,8 @@ function App() {
   });
 
 
-  // rectangle
-  renderer.setScene('rectangle', () => renderer.animate((time) => {
+  // rectangle 1
+  renderer.setScene('rectangle 1', () => renderer.animate((time) => {
     // rectangle buffers
     let rectangleCoordinates = [
       // -0.5, 0.5, 0.0,
@@ -89,8 +89,8 @@ function App() {
       ...normaliseCoordinates({x: 1, y: -1, z: 0.0}),
     ];
 
-    const matrixRotation = new MatrixRotation(rectangleCoordinates);
-    rectangleCoordinates = matrixRotation.rotateMatrix(CustomMath.radians(time));
+    const matrixRotation = new MatrixAnimation(rectangleCoordinates);
+    rectangleCoordinates = matrixRotation.rotate(CustomMath.radians(time));
 
     const rectanglePositionBuffer = renderer.tools.createBufferWithData(rectangleCoordinates, WebGLRenderingContext.ARRAY_BUFFER);
     const rectangleColorBuffer = renderer.tools.createBufferWithData([
@@ -118,6 +118,53 @@ function App() {
     // rendering
     renderer.tools.drawLocation(rectanglePositionBuffer, positionAttributeLocation!!, 4);
     renderer.tools.drawLocation(rectangleColorBuffer, colorAttributeLocation!!, 4);
+  }));
+
+
+   // rectangle 2
+  renderer.setScene('rectangle 2', () => renderer.animate((time) => {
+    // rectangle buffers
+    let rectangleCoordinates = [
+      // -0.5, 0.5, 0.0,
+      // -0.5, -0.5, 0.0,
+      // 0.5, 0.5, 0.0,
+      // 0.5, -0.5, 0.0,
+      ...normaliseCoordinates({x: -0.2, y: 0.2, z: 0.0}),
+      ...normaliseCoordinates({x: -0.2, y: -0.2, z: 0.0}),
+      ...normaliseCoordinates({x: 0.2, y: 0.2, z: 0.0}),
+      ...normaliseCoordinates({x: 0.2, y: -0.2, z: 0.0}),
+    ];
+
+    const matrixRotation = new MatrixAnimation(rectangleCoordinates);
+    rectangleCoordinates = matrixRotation.hover(0.5, CustomMath.radians(time));
+
+    const rectanglePositionBuffer = renderer.tools.createBufferWithData(rectangleCoordinates, WebGLRenderingContext.ARRAY_BUFFER);
+    const rectangleColorBuffer = renderer.tools.createBufferWithData([
+      1.0, 1.0, 0.0, 1.0,
+      0.0, 1.0, 0.0, 1.0,
+      0.0, 1.0, 1.0, 1.0,
+    ], WebGLRenderingContext.ARRAY_BUFFER);
+
+    nullCheck(rectanglePositionBuffer, "Position buffer for rectangle isn't created correctly");
+    nullCheck(rectangleColorBuffer, "Color buffer for rectangle isn't created correctly");
+    
+    // program
+    const shaderProgram = renderer.tools.createAndLinkProgram();
+
+    nullCheck(shaderProgram, "Shader program isn't created or linked correctly");
+
+    // locations
+    const positionAttributeLocation = renderer.tools.getAttribLocation("a_position");
+    const colorAttributeLocation = renderer.tools.getAttribLocation("a_color");
+
+    nullCheck(positionAttributeLocation, "Position location is incorrect");
+    nullCheck(colorAttributeLocation, "Color location is incorrect");
+
+    // rendering
+    renderer.tools.drawFanLocation(rectanglePositionBuffer, positionAttributeLocation!!, 4);
+    renderer.tools.drawLocation(rectangleColorBuffer, colorAttributeLocation!!, 4);
+
+    renderer.tools.getGl()
   }));
 
   renderer.startRendering();

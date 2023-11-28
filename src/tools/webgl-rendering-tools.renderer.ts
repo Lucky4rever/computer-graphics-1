@@ -101,6 +101,15 @@ class WebGLRenderingTools {
     }
   }
 
+  public drawFanLocation(buffer: WebGLBuffer | null, attributeLocation: number, vertexCount: number): void {
+    if (this.gl && buffer) {
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
+      this.gl.enableVertexAttribArray(attributeLocation);
+      this.gl.vertexAttribPointer(attributeLocation, 3, this.gl.FLOAT, false, 0, 0);
+      this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, vertexCount);
+    }
+  }
+
   public getAttribLocation(name: string, program?: WebGLProgram) {
     if (this.gl && (program || this.state.program)) {
       return this.gl.getAttribLocation(program ?? this.state.program!!, name);
